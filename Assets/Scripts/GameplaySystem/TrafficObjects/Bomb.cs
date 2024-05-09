@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Bomb : TrafficObject
 {
-    public Animator m_AnimationController;
+    public Animator m_animController;
 }

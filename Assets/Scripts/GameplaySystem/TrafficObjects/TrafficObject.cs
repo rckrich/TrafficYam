@@ -2,15 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrafficObjectContainer : MonoBehaviour
+public enum TrafficObjectType
+{
+    None,
+    Food,
+    Trash,
+    Coin
+}
+
+public class TrafficObject : RCKGameObject
 {
     public string m_name;
     public Sprite m_sprite;
+    public TrafficObjectType m_type;
     public string m_audioSFX;
-    public Animator m_AnimatorController;
-
-    public void OnClick_StartClickAnimator()
-    {
-
-    }
 }
