@@ -18,7 +18,7 @@ public class GameplayManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = GameObject.FindObjectOfType<GameplayManager>();
+                _instance = GameObject.FindFirstObjectByType<GameplayManager>();
             }
             return _instance;
         }
