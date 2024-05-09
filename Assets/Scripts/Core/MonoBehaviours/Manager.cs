@@ -34,6 +34,4 @@ public abstract class Manager<T> : RCKGameObject where T : RCKGameObject
 			Destroy(gameObject);
 		}
 	}
-
-
 }

@@ -7,17 +7,13 @@ public class EventManager
 
     public static EventManager m_Instance
     {
-
         get
         {
-
             if (m_instance == null)
                 m_instance = new EventManager();
 
             return m_instance;
-
         }
-
     }
 
     public delegate void EventDelegate<T>(T e) where T : GameEvent;
