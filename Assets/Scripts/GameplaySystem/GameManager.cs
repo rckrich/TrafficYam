@@ -56,9 +56,9 @@ public class GameManager : MonoBehaviour
 
     public void TimerEnds()
     {
-            UpdateGameState(GameState.Victory);
-        
+      UpdateGameState(GameState.Victory);  
     }
+
     public enum GameState
     {
         Victory,
