@@ -6,14 +6,28 @@ public enum TrafficObjectType
 {
     None,
     Food,
-    Trash,
+    Bomb,
     Coin
 }
 
 public class TrafficObject : RCKGameObject
 {
-    public string m_name;
-    public Sprite m_sprite;
     public TrafficObjectType m_type;
-    public string m_audioSFX;
+    public SO_TrafficObject m_typeReference;
+    public SpriteRenderer m_spriteRenderer;
+    public Animator m_animator;
+
+    public void ChangeType(SO_TrafficObject _reference){
+        m_typeReference = _reference;
+        SetProperties();
+    }
+
+    private void SetProperties(){
+        m_type = m_typeReference.m_type;
+        m_spriteRenderer.sprite = m_typeReference.m_sprite;
+        if(m_typeReference.m_usesAnimController){
+            m_animator.runtimeAnimatorController = m_typeReference.m_animatorController;
+        }
+    }
+
 }

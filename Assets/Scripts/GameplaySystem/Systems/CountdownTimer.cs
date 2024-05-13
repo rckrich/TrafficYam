@@ -17,7 +17,7 @@ public class CountdownTimer : MonoBehaviour
         currenTime -= 1 * Time.deltaTime;
         if (currenTime<= 0)
         {
-            GameManager.Instance.TimerEnds();
+            GameManager.m_Instance.TimerEnds();
         }
     }
 }
