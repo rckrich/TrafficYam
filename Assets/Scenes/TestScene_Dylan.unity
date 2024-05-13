@@ -886,7 +886,7 @@ Transform:
   m_GameObject: {fileID: 494894896}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 1, z: -5.7}
+  m_LocalPosition: {x: 0, y: 1, z: 2.31}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -941,10 +941,10 @@ MonoBehaviour:
   m_centerPosition: {fileID: 265076893}
   m_initialPosition: {fileID: 1601391350}
   GameOverScreen: {fileID: 268271304}
-  m_Timer: 60
-  m_foodToFeed: 0
+  m_Timer: 120
   m_Coins: 0
   m_lives: 3
+  m_trafficObjectInCenter: {fileID: 0}
   m_lifeText: {fileID: 1616911940}
   m_animalTrack:
   - {fileID: 2002103154}
@@ -967,7 +967,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_foodPerAnimal: 10
-  m_TrafficObjectRandomList: 
+  m_trafficObjectRandomList: 
   m_typesOfTrafficObjects:
   - {fileID: 11400000, guid: e7cdef1d5e49b1f47beb1a68e92bd17d, type: 2}
   - {fileID: 11400000, guid: 6a12d620e4f57e54797d0ea3efd9a750, type: 2}
@@ -2450,7 +2450,7 @@ Transform:
   m_GameObject: {fileID: 1902774944}
   serializedVersion: 2
   m_LocalRotation: {x: -0.00009793337, y: 0.00063386554, z: -0.00011013208, w: 0.9999999}
-  m_LocalPosition: {x: 0.1, y: 1, z: 5.54}
+  m_LocalPosition: {x: 0.1, y: 1, z: -1.47}
   m_LocalScale: {x: 1, y: 1, z: 1.100857}
   m_ConstrainProportionsScale: 0
   m_Children: []

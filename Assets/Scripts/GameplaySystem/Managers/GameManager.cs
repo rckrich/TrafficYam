@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine;
-
 using DG.Tweening;
+[RequireComponent(typeof(TrafficRandomizer))]
 public class GameManager : Manager<GameManager>
 {
     public GameState state;
@@ -15,7 +15,7 @@ public class GameManager : Manager<GameManager>
     public int m_lives = 3;
     private float m_TrafficObjectWaitSeconds;
     private float m_trafficObjectSpeed;
-    private GameObject m_trafficObjectInCenter;
+    public GameObject m_trafficObjectInCenter;
     public TextMeshProUGUI m_lifeText;
     private IEnumerator co_gamePlayLoop;
     public List<Transform> m_animalTrack = new List<Transform>();
@@ -24,7 +24,7 @@ public class GameManager : Manager<GameManager>
     
     private void Awake()
     {
-        m_TrafficObjectWaitSeconds = 1f;
+        m_TrafficObjectWaitSeconds = 2f;
         m_trafficObjectSpeed = 2;
     }
 
@@ -109,27 +109,27 @@ public class GameManager : Manager<GameManager>
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[0]);
             return;
         }
-        if(_swipeDirection == "Right" && m_numberOfAnimalsTracks > 1){
+        if(_swipeDirection == "Right" && m_numberOfAnimalsTracks > 0){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[1]);
             return;
         }
-        if(_swipeDirection == "Left" && m_numberOfAnimalsTracks > 2){
+        if(_swipeDirection == "Left" && m_numberOfAnimalsTracks > 1){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[2]);
             return;
         }
-        if(_swipeDirection == "UpRight" && m_numberOfAnimalsTracks > 3){
+        if(_swipeDirection == "UpRight" && m_numberOfAnimalsTracks > 2){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[3]);
             return;
         }
-        if(_swipeDirection == "UpLeft" && m_numberOfAnimalsTracks > 4){
+        if(_swipeDirection == "UpLeft" && m_numberOfAnimalsTracks > 3){
            m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[4]);
            return;
         }
-        if(_swipeDirection == "DownRight" && m_numberOfAnimalsTracks > 5){
+        if(_swipeDirection == "DownRight" && m_numberOfAnimalsTracks > 4){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[5]);
             return;
         }
-        if(_swipeDirection == "DownLeft" && m_numberOfAnimalsTracks > 6){
+        if(_swipeDirection == "DownLeft" && m_numberOfAnimalsTracks > 5){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[6]);
             return;
         }

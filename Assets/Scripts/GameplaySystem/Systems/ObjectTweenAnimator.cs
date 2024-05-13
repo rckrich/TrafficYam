@@ -9,7 +9,7 @@ public class ObjectTweenAnimator : RCKGameObject
     private float m_speedModifier = 1;
     public float MovementTransitionDuration = 1;
     private Tweener[] m_MoveToCenter, m_SwipeMove;
-    private bool m_DEBUGTWEENS = true;
+    private bool m_DEBUGTWEENS = false;
 
     // Start is called before the first frame update
     void Start()
