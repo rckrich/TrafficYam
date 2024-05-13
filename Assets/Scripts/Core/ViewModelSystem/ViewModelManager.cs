@@ -35,9 +35,11 @@ public class ViewModelManager : Manager<ViewModelManager>
     [SerializeField]
     private SO_SpawnableViewModelTypes m_viewModelTypesData;
 
-    private bool m_isCurrentViewSpawned = false;
+    [Space]
 
     public RectTransform m_spawnedViewsParent;
+
+    private bool m_isCurrentViewSpawned = false;
 
     protected override void OnAwake()
     {
