@@ -6,7 +6,7 @@ using System;
 using Unity.VisualScripting;
 using TMPro;
 
-public class GameplayManager : MonoBehaviour
+public class GameplayManager : Manager<GameplayManager>
 {
 
     private static GameplayManager _instance;

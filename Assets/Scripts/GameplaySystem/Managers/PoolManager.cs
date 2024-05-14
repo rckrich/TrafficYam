@@ -1,27 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PoolManager : MonoBehaviour
+public class PoolManager : Manager<PoolManager>
 {
     
-    private int m_prefabsToInitialize = 10;
+    private int m_prefabsToInitialize;
     public GameObject m_prefab;
 
     private List<GameObject> m_pooledObjects = new List<GameObject>();
-
-    private static PoolManager _instance;
-
-    public static PoolManager instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = GameObject.FindFirstObjectByType<PoolManager>();
-            }
-            return _instance;
-        }
-    }
 
     void Start()
     {
