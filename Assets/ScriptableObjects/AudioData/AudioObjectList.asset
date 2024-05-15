@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BGMAudioObjectList:
     m_groupType: 2
-    m_audioObjects: []
+    m_audioObjects:
+    - m_audioID: Test
+      m_audioClip: {fileID: 8300000, guid: 0cd73e4b6d99c4558b4bb83b52220516, type: 3}
+    - m_audioID: Test2
+      m_audioClip: {fileID: 8300000, guid: 5f669ef0991ff4bcea8d308eaa8ba685, type: 3}
   m_GameSFXAudioObjectList:
     m_groupType: 3
-    m_audioObjects: []
+    m_audioObjects:
+    - m_audioID: Test
+      m_audioClip: {fileID: 8300000, guid: 1d429f258987f443b8c9c97e9fef5328, type: 3}
   m_UISFXAudioObjectList:
     m_groupType: 4
-    m_audioObjects: []
+    m_audioObjects:
+    - m_audioID: Test
+      m_audioClip: {fileID: 8300000, guid: 4db17d1b37b5c4f58b3f8fdf7176cb39, type: 3}

@@ -75,7 +75,7 @@ public class AudioManager : Manager<AudioManager>
         m_weights[0] = MAX_WEIGHT_OF_SNAPSHOT;
     }
 
-    public void PlayBGM(string _audioObjectName)
+    public void PlayBGM(string _audioObjectName, bool _loop = true)
     {
         if (m_mute || m_paused) return;
 
@@ -83,6 +83,7 @@ public class AudioManager : Manager<AudioManager>
         {
             AudioSource audioSource = getAvailableAudioSource(AudioMixerGroupTypes.BGM);
             audioSource.clip = getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.BGM);
+            audioSource.loop = _loop;
             audioSource.Play();
         }
         catch (NullReferenceException ex)
@@ -91,14 +92,14 @@ public class AudioManager : Manager<AudioManager>
         }
     }
 
-    public void PlayBGMWithTransition(string _audioObjectName, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f)
+    public void PlayBGMWithTransition(string _audioObjectName, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f, bool _loop = true)
     {
         if (m_mute || m_paused) return;
 
         try
         {
             AudioSource audioSource = getAvailableAudioSource(AudioMixerGroupTypes.BGM);
-            audioTransition(audioSource, getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.BGM), audioSource.volume, _timeToMoveFadeOut, _timeToMoveFadeIn);
+            audioTransition(audioSource, getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.BGM), audioSource.volume, _timeToMoveFadeOut, _timeToMoveFadeIn, _loop);
         }
         catch (NullReferenceException ex)
         {
@@ -106,7 +107,7 @@ public class AudioManager : Manager<AudioManager>
         }
     }
 
-    public void PlayGameSFX(string _audioObjectName)
+    public void PlayGameSFX(string _audioObjectName, bool _loop = false)
     {
         if (m_mute || m_paused) return;
 
@@ -114,6 +115,7 @@ public class AudioManager : Manager<AudioManager>
         {
             AudioSource audioSource = getAvailableAudioSource(AudioMixerGroupTypes.Game_SFX);
             audioSource.clip = getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.Game_SFX);
+            audioSource.loop = _loop;
             audioSource.Play();
         }
         catch (NullReferenceException ex)
@@ -122,7 +124,7 @@ public class AudioManager : Manager<AudioManager>
         }
     }
 
-    public void PlayUISFX(string _audioObjectName)
+    public void PlayUISFX(string _audioObjectName, bool _loop = false)
     {
         if (m_mute || m_paused) return;
 
@@ -130,6 +132,7 @@ public class AudioManager : Manager<AudioManager>
         {
             AudioSource audioSource = getAvailableAudioSource(AudioMixerGroupTypes.UI_SFX);
             audioSource.clip = getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.UI_SFX);
+            audioSource.loop = _loop;
             audioSource.Play();
         }
         catch (NullReferenceException ex)
@@ -138,7 +141,7 @@ public class AudioManager : Manager<AudioManager>
         }
     }
 
-    public void TransitionSnapshotTo(SnapshotTypes _snapshotType, float _timeToReach)
+    public void TransitionToSnapshot(SnapshotTypes _snapshotType, float _timeToReach)
     {
         for(int i = 0; i < m_weights.Length; i++)
         {
@@ -205,15 +208,15 @@ public class AudioManager : Manager<AudioManager>
             m_sfxAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>().mute = _value;
         }
 
-        m_paused = _value;
+        m_mute = _value;
     }
 
-    private void audioTransition(AudioSource _audioSource, AudioClip _newAudioClip, float _maxVolume = 1.0f, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f)
+    private void audioTransition(AudioSource _audioSource, AudioClip _newAudioClip, float _maxVolume = 1.0f, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f, bool _loop = true)
     {
-        StartCoroutine(CR_audioTransitionRoutine(_audioSource, _newAudioClip, _maxVolume, _timeToMoveFadeOut, _timeToMoveFadeIn));
+        StartCoroutine(CR_audioTransitionRoutine(_audioSource, _newAudioClip, _maxVolume, _timeToMoveFadeOut, _timeToMoveFadeIn, _loop));
     }
 
-    private IEnumerator CR_audioTransitionRoutine(AudioSource _audioSource, AudioClip _newAudioClip, float _maxVolume = 1.0f, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f)
+    private IEnumerator CR_audioTransitionRoutine(AudioSource _audioSource, AudioClip _newAudioClip, float _maxVolume = 1.0f, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f, bool _loop = true)
     {
         if (!m_musicIsInTransition)
         {
@@ -244,6 +247,7 @@ public class AudioManager : Manager<AudioManager>
 
             // Change AudioClip
             _audioSource.clip = _newAudioClip;
+            _audioSource.loop = _loop;
             _audioSource.Play();
 
             // Turn up volume
@@ -350,6 +354,7 @@ public class AudioManager : Manager<AudioManager>
             }
         }
 
+        audioSource = null;
         return audioSource;
     }
 
@@ -368,8 +373,6 @@ public class AudioManager : Manager<AudioManager>
             audioSource = Instantiate(audioSourceGameObject, m_sfxAudioSourceInstanceParent).GetComponent<AudioSource>();
             m_lastSFXAudioSourceIndex = audioSource.transform.GetSiblingIndex();
         }
-
-        audioSource.outputAudioMixerGroup = getAudioMixerGroupFromType(_audioMixerGroupType);
 
         return audioSource;
     }
@@ -398,7 +401,7 @@ public class AudioManager : Manager<AudioManager>
         {
             if(_audioMixerGroupType == AudioMixerGroupTypes.BGM)
             {
-                if(m_bgmAudioSourceInstanceParent.childCount <= AUDIO_BGM_SOURCE_SPAWN_MAX)
+                if(m_bgmAudioSourceInstanceParent.childCount < AUDIO_BGM_SOURCE_SPAWN_MAX)
                 {
                     audioSource = instanceAudioSource(_audioMixerGroupType);
                 }
@@ -407,12 +410,13 @@ public class AudioManager : Manager<AudioManager>
                     audioSource = getLastIndexAudioSource(_audioMixerGroupType);
                 }
 
+                audioSource.outputAudioMixerGroup = getAudioMixerGroupFromType(_audioMixerGroupType);
                 return audioSource;
 
             }
             else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
             {
-                if (m_sfxAudioSourceInstanceParent.childCount <= AUDIO_SFX_SOURCE_SPAWN_MAX)
+                if (m_sfxAudioSourceInstanceParent.childCount < AUDIO_SFX_SOURCE_SPAWN_MAX)
                 {
                     audioSource = instanceAudioSource(_audioMixerGroupType);
                 }
@@ -421,11 +425,13 @@ public class AudioManager : Manager<AudioManager>
                     audioSource = getLastIndexAudioSource(_audioMixerGroupType);
                 }
 
+                audioSource.outputAudioMixerGroup = getAudioMixerGroupFromType(_audioMixerGroupType);
                 return audioSource;
 
             }
         }
 
+        audioSource.outputAudioMixerGroup = getAudioMixerGroupFromType(_audioMixerGroupType);
         return audioSource;
     }
 }
