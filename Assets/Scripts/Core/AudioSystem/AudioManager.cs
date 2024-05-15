@@ -53,6 +53,9 @@ public class AudioManager : Manager<AudioManager>
     private int m_lastSFXAudioSourceIndex = 0;
     private AudioMixerSnapshot[] m_snapshots;
     private float[] m_weights;
+    private bool m_musicIsInTransition = false;
+    private bool m_mute = false;
+    private bool m_paused = false;
 
     private void Start()
     {
@@ -72,28 +75,73 @@ public class AudioManager : Manager<AudioManager>
         m_weights[0] = MAX_WEIGHT_OF_SNAPSHOT;
     }
 
-    public void PlayBGM(string _audioObjectName)
+    public void PlayBGM(string _audioObjectName, bool _loop = true)
     {
-        AudioSource audioSource = GetAvailableAudioSource(AudioMixerGroupTypes.BGM);
-        audioSource.clip = GetAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.BGM);
-        audioSource.Play();
+        if (m_mute || m_paused) return;
+
+        try
+        {
+            AudioSource audioSource = getAvailableAudioSource(AudioMixerGroupTypes.BGM);
+            audioSource.clip = getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.BGM);
+            audioSource.loop = _loop;
+            audioSource.Play();
+        }
+        catch (NullReferenceException ex)
+        {
+            Debug.Log("Could not find AudioSource available. " + ex);
+        }
     }
 
-    public void PlayGameSFX(string _audioObjectName)
+    public void PlayBGMWithTransition(string _audioObjectName, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f, bool _loop = true)
     {
-        AudioSource audioSource = GetAvailableAudioSource(AudioMixerGroupTypes.Game_SFX);
-        audioSource.clip = GetAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.Game_SFX);
-        audioSource.Play();
+        if (m_mute || m_paused) return;
+
+        try
+        {
+            AudioSource audioSource = getAvailableAudioSource(AudioMixerGroupTypes.BGM);
+            audioTransition(audioSource, getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.BGM), audioSource.volume, _timeToMoveFadeOut, _timeToMoveFadeIn, _loop);
+        }
+        catch (NullReferenceException ex)
+        {
+            Debug.Log("Could not find AudioSource available. " + ex);
+        }
     }
 
-    public void PlayUISFX(string _audioObjectName)
+    public void PlayGameSFX(string _audioObjectName, bool _loop = false)
     {
-        AudioSource audioSource = GetAvailableAudioSource(AudioMixerGroupTypes.UI_SFX);
-        audioSource.clip = GetAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.UI_SFX);
-        audioSource.Play();
+        if (m_mute || m_paused) return;
+
+        try
+        {
+            AudioSource audioSource = getAvailableAudioSource(AudioMixerGroupTypes.Game_SFX);
+            audioSource.clip = getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.Game_SFX);
+            audioSource.loop = _loop;
+            audioSource.Play();
+        }
+        catch (NullReferenceException ex)
+        {
+            Debug.Log("Could not find AudioSource available. " + ex);
+        }
     }
 
-    public void TransitionSnapshotTo(SnapshotTypes _snapshotType, float _timeToReach)
+    public void PlayUISFX(string _audioObjectName, bool _loop = false)
+    {
+        if (m_mute || m_paused) return;
+
+        try
+        {
+            AudioSource audioSource = getAvailableAudioSource(AudioMixerGroupTypes.UI_SFX);
+            audioSource.clip = getAudioClipFromAudioObject(_audioObjectName, AudioMixerGroupTypes.UI_SFX);
+            audioSource.loop = _loop;
+            audioSource.Play();
+        }
+        catch (NullReferenceException ex)
+        {
+            Debug.Log("Could not find AudioSource available. " + ex);
+        }
+    }
+
+    public void TransitionToSnapshot(SnapshotTypes _snapshotType, float _timeToReach)
     {
         for(int i = 0; i < m_weights.Length; i++)
         {
@@ -129,6 +177,8 @@ public class AudioManager : Manager<AudioManager>
         {
             m_sfxAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>().Pause();
         }
+
+        m_paused = true;
     }
 
     public void UnPauseAllAudio()
@@ -142,41 +192,90 @@ public class AudioManager : Manager<AudioManager>
         {
             m_sfxAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>().UnPause();
         }
+
+        m_paused = false;
     }
 
-    private AudioSource isAnyAudioSouceAvailable(AudioMixerGroupTypes _audioMixerGroupType)
+    public void MuteUnMuteAllAudio(bool _value)
     {
-        AudioSource audioSource = null;
-
-        if (_audioMixerGroupType == AudioMixerGroupTypes.BGM)
+        for (int i = 0; i < m_bgmAudioSourceInstanceParent.childCount; i++)
         {
-            for (int i = 0; i < m_bgmAudioSourceInstanceParent.childCount; i++)
-            {
-                audioSource = m_bgmAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>();
-                if (!audioSource.isPlaying)
-                {
-                    m_lastBGMAudioSourceIndex = audioSource.transform.GetSiblingIndex();
-                    return audioSource;
-                }
-            }
-        }
-        else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
-        {
-            for (int i = 0; i < m_sfxAudioSourceInstanceParent.childCount; i++)
-            {
-                audioSource = m_sfxAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>();
-                if (!audioSource.isPlaying)
-                {
-                    m_lastSFXAudioSourceIndex = audioSource.transform.GetSiblingIndex();
-                    return audioSource;
-                }
-            }
+            m_bgmAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>().mute = _value;
         }
 
-        return audioSource;
+        for (int i = 0; i < m_sfxAudioSourceInstanceParent.childCount; i++)
+        {
+            m_sfxAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>().mute = _value;
+        }
+
+        m_mute = _value;
     }
 
-    private AudioMixerGroup GetAudioMixerGroupFromType(AudioMixerGroupTypes _audioMixerGroupType)
+    private void audioTransition(AudioSource _audioSource, AudioClip _newAudioClip, float _maxVolume = 1.0f, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f, bool _loop = true)
+    {
+        StartCoroutine(CR_audioTransitionRoutine(_audioSource, _newAudioClip, _maxVolume, _timeToMoveFadeOut, _timeToMoveFadeIn, _loop));
+    }
+
+    private IEnumerator CR_audioTransitionRoutine(AudioSource _audioSource, AudioClip _newAudioClip, float _maxVolume = 1.0f, float _timeToMoveFadeOut = 1.0f, float _timeToMoveFadeIn = 1.0f, bool _loop = true)
+    {
+        if (!m_musicIsInTransition)
+        {
+            m_musicIsInTransition = true;
+
+            // Turn down volume
+            bool reachedDestinationFadeOut = false;
+            float elapsedTimeFadeOut = 0f;
+
+            while (!reachedDestinationFadeOut)
+            {
+                if (_audioSource.volume <= 0f)
+                {
+                    _audioSource.volume = 0f;
+                    reachedDestinationFadeOut = true;
+                    break;
+                }
+
+                elapsedTimeFadeOut += Time.deltaTime;
+                float t = Mathf.Clamp(elapsedTimeFadeOut / _timeToMoveFadeOut, 0f, 1f);
+                t = t * t * t * (t * (t * 6 - 15) + 10);
+
+                _audioSource.volume = Mathf.Lerp(_maxVolume, 0f, t);
+                yield return null;
+            }
+
+            yield return null;
+
+            // Change AudioClip
+            _audioSource.clip = _newAudioClip;
+            _audioSource.loop = _loop;
+            _audioSource.Play();
+
+            // Turn up volume
+            bool reachedDestinationFadeIn = false;
+            float elapsedTimeFadeIn = 0f;
+
+            while (!reachedDestinationFadeIn)
+            {
+                if (_audioSource.volume >= _maxVolume)
+                {
+                    _audioSource.volume = _maxVolume;
+                    reachedDestinationFadeIn = true;
+                    break;
+                }
+
+                elapsedTimeFadeIn += Time.deltaTime;
+                float t = Mathf.Clamp(elapsedTimeFadeIn / _timeToMoveFadeIn, 0f, 1f);
+                t = t * t * t * (t * (t * 6 - 15) + 10);
+
+                _audioSource.volume = Mathf.Lerp(0f, _maxVolume, t);
+                yield return null;
+            }
+
+            m_musicIsInTransition = false;
+        }
+    }
+
+    private AudioMixerGroup getAudioMixerGroupFromType(AudioMixerGroupTypes _audioMixerGroupType)
     {
         AudioMixerGroup audioMixerGroup = null;
 
@@ -196,79 +295,8 @@ public class AudioManager : Manager<AudioManager>
         return audioMixerGroup;
     }
 
-    private AudioSource InstanceAudioSource(AudioMixerGroupTypes _audioMixerGroupType)
-    {
-        GameObject audioSourceGameObject = new GameObject("AudioSource", typeof(AudioSource));
-        AudioSource audioSource = null;
 
-        if (_audioMixerGroupType == AudioMixerGroupTypes.BGM)
-        {
-            audioSource = Instantiate(audioSourceGameObject, m_bgmAudioSourceInstanceParent).GetComponent<AudioSource>();
-            m_lastBGMAudioSourceIndex = audioSource.transform.GetSiblingIndex();
-        }
-        else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
-        {
-            audioSource = Instantiate(audioSourceGameObject, m_sfxAudioSourceInstanceParent).GetComponent<AudioSource>();
-            m_lastSFXAudioSourceIndex = audioSource.transform.GetSiblingIndex();
-        }
-
-        audioSource.outputAudioMixerGroup = GetAudioMixerGroupFromType(_audioMixerGroupType);
-
-        return audioSource;
-    }
-
-    private AudioSource GetLastIndexAudioSource(AudioMixerGroupTypes _audioMixerGroupType)
-    {
-        AudioSource audioSource = null;
-
-        if (_audioMixerGroupType == AudioMixerGroupTypes.BGM)
-        {
-            audioSource = m_bgmAudioSourceInstanceParent.GetChild(m_lastBGMAudioSourceIndex).GetComponent<AudioSource>();
-        }
-        else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
-        {
-            audioSource = m_sfxAudioSourceInstanceParent.GetChild(m_lastSFXAudioSourceIndex).GetComponent<AudioSource>();
-        }
-
-        return audioSource;
-    }
-
-    private AudioSource GetAvailableAudioSource(AudioMixerGroupTypes _audioMixerGroupType)
-    {
-        AudioSource audioSource = isAnyAudioSouceAvailable(_audioMixerGroupType);
-
-        if (audioSource == null)
-        {
-            if(_audioMixerGroupType == AudioMixerGroupTypes.BGM)
-            {
-                if(m_bgmAudioSourceInstanceParent.childCount <= AUDIO_BGM_SOURCE_SPAWN_MAX)
-                {
-                    audioSource = InstanceAudioSource(_audioMixerGroupType);
-                }
-                else
-                {
-                    audioSource = GetLastIndexAudioSource(_audioMixerGroupType);
-                }
-            }
-            else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
-            {
-                if (m_sfxAudioSourceInstanceParent.childCount <= AUDIO_SFX_SOURCE_SPAWN_MAX)
-                {
-                    audioSource = InstanceAudioSource(_audioMixerGroupType);
-                }
-                else
-                {
-                    audioSource = GetLastIndexAudioSource(_audioMixerGroupType);
-                }
-            }
-
-            audioSource = InstanceAudioSource(_audioMixerGroupType);
-        }
-
-        return audioSource;
-    }
-
-    private AudioClip GetAudioClipFromAudioObject(string _audioObjectName, AudioMixerGroupTypes _audioMixerGroupType)
+    private AudioClip getAudioClipFromAudioObject(string _audioObjectName, AudioMixerGroupTypes _audioMixerGroupType)
     {
         AudioClip audioClip = null;
 
@@ -297,4 +325,113 @@ public class AudioManager : Manager<AudioManager>
         return audioClip;
     }
 
+    private AudioSource getAnyAudioSouceAvailable(AudioMixerGroupTypes _audioMixerGroupType)
+    {
+        AudioSource audioSource = null;
+
+        if (_audioMixerGroupType == AudioMixerGroupTypes.BGM)
+        {
+            for (int i = 0; i < m_bgmAudioSourceInstanceParent.childCount; i++)
+            {
+                audioSource = m_bgmAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>();
+                if (!audioSource.isPlaying)
+                {
+                    m_lastBGMAudioSourceIndex = audioSource.transform.GetSiblingIndex();
+                    return audioSource;
+                }
+            }
+        }
+        else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
+        {
+            for (int i = 0; i < m_sfxAudioSourceInstanceParent.childCount; i++)
+            {
+                audioSource = m_sfxAudioSourceInstanceParent.GetChild(i).GetComponent<AudioSource>();
+                if (!audioSource.isPlaying)
+                {
+                    m_lastSFXAudioSourceIndex = audioSource.transform.GetSiblingIndex();
+                    return audioSource;
+                }
+            }
+        }
+
+        audioSource = null;
+        return audioSource;
+    }
+
+    private AudioSource instanceAudioSource(AudioMixerGroupTypes _audioMixerGroupType)
+    {
+        GameObject audioSourceGameObject = new GameObject("AudioSource", typeof(AudioSource));
+        AudioSource audioSource = null;
+
+        if (_audioMixerGroupType == AudioMixerGroupTypes.BGM)
+        {
+            audioSource = Instantiate(audioSourceGameObject, m_bgmAudioSourceInstanceParent).GetComponent<AudioSource>();
+            m_lastBGMAudioSourceIndex = audioSource.transform.GetSiblingIndex();
+        }
+        else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
+        {
+            audioSource = Instantiate(audioSourceGameObject, m_sfxAudioSourceInstanceParent).GetComponent<AudioSource>();
+            m_lastSFXAudioSourceIndex = audioSource.transform.GetSiblingIndex();
+        }
+
+        return audioSource;
+    }
+
+    private AudioSource getLastIndexAudioSource(AudioMixerGroupTypes _audioMixerGroupType)
+    {
+        AudioSource audioSource = null;
+
+        if (_audioMixerGroupType == AudioMixerGroupTypes.BGM)
+        {
+            audioSource = m_bgmAudioSourceInstanceParent.GetChild(m_lastBGMAudioSourceIndex).GetComponent<AudioSource>();
+        }
+        else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
+        {
+            audioSource = m_sfxAudioSourceInstanceParent.GetChild(m_lastSFXAudioSourceIndex).GetComponent<AudioSource>();
+        }
+
+        return audioSource;
+    }
+
+    private AudioSource getAvailableAudioSource(AudioMixerGroupTypes _audioMixerGroupType)
+    {
+        AudioSource audioSource = getAnyAudioSouceAvailable(_audioMixerGroupType);
+
+        if (audioSource == null)
+        {
+            if(_audioMixerGroupType == AudioMixerGroupTypes.BGM)
+            {
+                if(m_bgmAudioSourceInstanceParent.childCount < AUDIO_BGM_SOURCE_SPAWN_MAX)
+                {
+                    audioSource = instanceAudioSource(_audioMixerGroupType);
+                }
+                else
+                {
+                    audioSource = getLastIndexAudioSource(_audioMixerGroupType);
+                }
+
+                audioSource.outputAudioMixerGroup = getAudioMixerGroupFromType(_audioMixerGroupType);
+                return audioSource;
+
+            }
+            else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
+            {
+                if (m_sfxAudioSourceInstanceParent.childCount < AUDIO_SFX_SOURCE_SPAWN_MAX)
+                {
+                    audioSource = instanceAudioSource(_audioMixerGroupType);
+                }
+                else
+                {
+                    audioSource = getLastIndexAudioSource(_audioMixerGroupType);
+                }
+
+                audioSource.outputAudioMixerGroup = getAudioMixerGroupFromType(_audioMixerGroupType);
+                return audioSource;
+
+            }
+        }
+
+        audioSource.outputAudioMixerGroup = getAudioMixerGroupFromType(_audioMixerGroupType);
+        return audioSource;
+    }
 }
