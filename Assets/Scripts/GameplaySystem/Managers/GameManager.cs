@@ -17,36 +17,57 @@ public class GameManager : Manager<GameManager>
     private float m_trafficObjectSpeed;
     public GameObject m_trafficObjectInCenter;
     public TextMeshProUGUI m_lifeText;
-    private IEnumerator co_gamePlayLoop;
+    private IEnumerator co_gamePlayLoop, co_gameCounter;
     public List<Transform> m_animalTrack = new List<Transform>();
     public TrafficRandomizer m_trafficRandomizer;
-    public List<Animal> m_animalsToFeed = new List<Animal>();
+    public List<GameObject> m_animalsToFeed = new List<GameObject>();
+    private int m_animalsInPlay;
+    private bool ColisionDoOnce;
     
-    private void Awake()
-    {
+    private void Start(){
+        
         m_TrafficObjectWaitSeconds = 2f;
         m_trafficObjectSpeed = 2;
     }
 
-    private void InitializeGame(){
+    public void InitializeGame(){
+        ConfigureAnimalsInPlay();
+        if(co_gameCounter == null){
+            co_gameCounter = GameCounter();
+            StartCoroutine(co_gameCounter);
+        }
+    }
+
+    private void InitializeGameLogic(){
+        co_gameCounter = null;
         m_lives = 3;
         m_lifeText.text = m_lives.ToString();
-        m_trafficRandomizer.Randomize(m_TrafficObjectWaitSeconds, m_Timer, m_animalsToFeed.Count-1, CalculateAnimalCarnivores());
+        m_trafficRandomizer.Randomize(m_TrafficObjectWaitSeconds, m_Timer, m_animalsInPlay, CalculateAnimalCarnivores());
         if(co_gamePlayLoop == null){
             co_gamePlayLoop = GamePlayLoop();
             StartCoroutine(co_gamePlayLoop);
         }
     }
+
+    private void ConfigureAnimalsInPlay(){
+        m_animalsInPlay = GameDataManager.m_Instance.g_animalsInPlay;
+        for (int i = 0; i < m_animalsToFeed.Count; i++)
+        {
+            if( i > m_animalsInPlay-1){
+                m_animalsToFeed[i].SetActive(false);
+            }
+        }
+    }
     
     private float CalculateAnimalCarnivores(){
         float _carnivores = 0;
-        foreach (Animal _animal in m_animalsToFeed)
+        foreach (GameObject _animal in m_animalsToFeed)
         {
-            if(_animal.m_foodType == FoodType.Carnivorous){
+            if(_animal.GetComponentInChildren<Animal>().m_foodType == FoodType.Carnivorous){
                 _carnivores++;
                 break;
             }
-            if(_animal.m_foodType == FoodType.Omnivore){
+            if(_animal.GetComponentInChildren<Animal>().m_foodType == FoodType.Omnivore){
                 _carnivores = _carnivores + .5f;
                 break;
             }
@@ -55,7 +76,19 @@ public class GameManager : Manager<GameManager>
         return _carnivores;
     }
 
-    
+    IEnumerator GameCounter(){
+        int timer = 3;
+        while(true){
+            Debug.Log(timer);
+            yield return new WaitForSeconds(1);
+            if(timer < 2){
+                break;
+            }else{
+                timer--;
+            }
+        }
+        InitializeGameLogic();
+    }
     IEnumerator GamePlayLoop(){
         while (true){
             InitializTrafficObject();
@@ -93,6 +126,19 @@ public class GameManager : Manager<GameManager>
         m_trafficObjectInCenter = _trafficObject;
     }
 
+    public void TrafficObjectColision(GameObject _trafficObject, GameObject _trafficObject2){
+        if(_trafficObject.activeSelf == true && _trafficObject2.activeSelf == true){
+            if(_trafficObject.transform.position.z < _trafficObject2.transform.position.z){
+                _trafficObject2.SetActive(false);
+            }else{
+                _trafficObject.SetActive(false);
+            }
+            LoseLife();
+        }
+        
+        
+    }
+
     public void OnSwipe(string _swipe)
     {
         if(m_trafficObjectInCenter != null){
@@ -104,32 +150,31 @@ public class GameManager : Manager<GameManager>
 
     private void SwipeLogic(string _swipeDirection, GameObject m_trafficObject)
     {
-        int m_numberOfAnimalsTracks = m_animalsToFeed.Count;
         if(_swipeDirection == "Up"){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[0]);
             return;
         }
-        if(_swipeDirection == "Right" && m_numberOfAnimalsTracks > 0){
+        if(_swipeDirection == "Right" && m_animalsInPlay > 0){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[1]);
             return;
         }
-        if(_swipeDirection == "Left" && m_numberOfAnimalsTracks > 1){
+        if(_swipeDirection == "Left" && m_animalsInPlay > 1){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[2]);
             return;
         }
-        if(_swipeDirection == "UpRight" && m_numberOfAnimalsTracks > 2){
+        if(_swipeDirection == "UpRight" && m_animalsInPlay > 2){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[3]);
             return;
         }
-        if(_swipeDirection == "UpLeft" && m_numberOfAnimalsTracks > 3){
+        if(_swipeDirection == "UpLeft" && m_animalsInPlay > 3){
            m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[4]);
            return;
         }
-        if(_swipeDirection == "DownRight" && m_numberOfAnimalsTracks > 4){
+        if(_swipeDirection == "DownRight" && m_animalsInPlay > 4){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[5]);
             return;
         }
-        if(_swipeDirection == "DownLeft" && m_numberOfAnimalsTracks > 5){
+        if(_swipeDirection == "DownLeft" && m_animalsInPlay > 5){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[6]);
             return;
         }
@@ -137,6 +182,7 @@ public class GameManager : Manager<GameManager>
 
     public void LoseLife()
     {
+        Debug.Log("lose");
         if(m_lives == 0)
         {
             UpdateGameState(GameState.Lose);
