@@ -4,46 +4,23 @@ using System;
 using UnityEngine;
 using UnityEngine.Audio;
 
-public enum SnapshotTypes
-{
-    None,
-    Normal,
-    Paused,
-    Mute
-}
-
-[System.Serializable]
-public class AudioSnapshotObject
-{
-    public SnapshotTypes m_snapShotType;
-    public AudioMixerSnapshot m_snapshot;
-}
-
-[System.Serializable]
-public class AudioMixerGroupObject
-{
-    public AudioMixerGroupTypes m_groupType;
-    public AudioMixerGroup m_mixerGroup;
-}
-
 public class AudioManager : Manager<AudioManager>
 {
-    private const int AUDIO_BGM_SOURCE_SPAWN_MAX = 1;
-    private const int AUDIO_SFX_SOURCE_SPAWN_MAX = 5;
     private const float MAX_WEIGHT_OF_SNAPSHOT = 1.0f;
 
     [Header("Audio Data")]
     [SerializeField]
-    private SO_AudioObjectList m_audioObjectList;
+    private SO_AudioManagerSettings m_audioSettings;
+    [Space]
+    [Header("Audio Source Pool Settings")]
     [SerializeField]
-    private List<AudioMixerGroupObject> m_audioMixerGroupObjects;
-
+    [Min(1)]
+    private int m_audioBGMPoolSize = 1;
+    [SerializeField]
+    [Min(1)]
+    private int m_AudioSFXPoolSize = 10;
     [Space]
     [Header("Audio Source Instance References")]
-    [SerializeField]
-    private AudioMixer m_audioMixer;
-    [SerializeField]
-    private List<AudioSnapshotObject> m_audioSnapshotObjects;
     [SerializeField]
     private Transform m_bgmAudioSourceInstanceParent;
     [SerializeField]
@@ -59,14 +36,14 @@ public class AudioManager : Manager<AudioManager>
 
     private void Start()
     {
-        m_snapshots = new AudioMixerSnapshot[m_audioSnapshotObjects.Count];
-        for(int i = 0; i < m_audioSnapshotObjects.Count; i++)
+        m_snapshots = new AudioMixerSnapshot[m_audioSettings.m_audioSnapshotObjects.Count];
+        for(int i = 0; i < m_audioSettings.m_audioSnapshotObjects.Count; i++)
         {
-            m_snapshots[i] = m_audioSnapshotObjects[i].m_snapshot;
+            m_snapshots[i] = m_audioSettings.m_audioSnapshotObjects[i].m_snapshot;
         }
 
-        m_weights = new float[m_audioSnapshotObjects.Count];
-        for (int i = 0; i < m_audioSnapshotObjects.Count; i++)
+        m_weights = new float[m_audioSettings.m_audioSnapshotObjects.Count];
+        for (int i = 0; i < m_audioSettings.m_audioSnapshotObjects.Count; i++)
         {
             m_weights[i] = 0;
         }
@@ -148,9 +125,9 @@ public class AudioManager : Manager<AudioManager>
             m_weights[i] = 0;
         }
 
-        int snapshotIndex = m_audioSnapshotObjects.FindIndex((audioSnapshotObject) => _snapshotType == audioSnapshotObject.m_snapShotType);
+        int snapshotIndex = m_audioSettings.m_audioSnapshotObjects.FindIndex((audioSnapshotObject) => _snapshotType == audioSnapshotObject.m_snapShotType);
         m_weights[snapshotIndex] = MAX_WEIGHT_OF_SNAPSHOT;
-        m_audioMixer.TransitionToSnapshots(m_snapshots, m_weights, _timeToReach);
+        m_audioSettings.m_audioMixer.TransitionToSnapshots(m_snapshots, m_weights, _timeToReach);
     }
 
     public void StopAllAudio()
@@ -281,7 +258,7 @@ public class AudioManager : Manager<AudioManager>
 
         try
         {
-            foreach (AudioMixerGroupObject audioMixerGroupObject in m_audioMixerGroupObjects)
+            foreach (AudioMixerGroupObject audioMixerGroupObject in m_audioSettings.m_audioMixerGroupObjects)
             {
                 if (audioMixerGroupObject.m_groupType == _audioMixerGroupType)
                     audioMixerGroup = audioMixerGroupObject.m_mixerGroup;
@@ -307,13 +284,13 @@ public class AudioManager : Manager<AudioManager>
                 case AudioMixerGroupTypes.Master:
                     return audioClip = null;
                 case AudioMixerGroupTypes.BGM:
-                    audioClip = m_audioObjectList.m_BGMAudioObjectList.m_audioObjects.Find((audioObject) => audioObject.m_audioID == _audioObjectName).m_audioClip;
+                    audioClip = m_audioSettings.m_BGMAudioObjectList.m_audioObjects.Find((audioObject) => audioObject.m_audioID == _audioObjectName).m_audioClip;
                     break;
                 case AudioMixerGroupTypes.Game_SFX:
-                    audioClip = m_audioObjectList.m_GameSFXAudioObjectList.m_audioObjects.Find((audioObject) => audioObject.m_audioID == _audioObjectName).m_audioClip;
+                    audioClip = m_audioSettings.m_GameSFXAudioObjectList.m_audioObjects.Find((audioObject) => audioObject.m_audioID == _audioObjectName).m_audioClip;
                     break;
                 case AudioMixerGroupTypes.UI_SFX:
-                    audioClip = m_audioObjectList.m_UISFXAudioObjectList.m_audioObjects.Find((audioObject) => audioObject.m_audioID == _audioObjectName).m_audioClip;
+                    audioClip = m_audioSettings.m_UISFXAudioObjectList.m_audioObjects.Find((audioObject) => audioObject.m_audioID == _audioObjectName).m_audioClip;
                     break;
             }
         }
@@ -360,18 +337,22 @@ public class AudioManager : Manager<AudioManager>
 
     private AudioSource instanceAudioSource(AudioMixerGroupTypes _audioMixerGroupType)
     {
-        GameObject audioSourceGameObject = new GameObject("AudioSource", typeof(AudioSource));
+        GameObject audioSourceGameObject = null;
         AudioSource audioSource = null;
 
         if (_audioMixerGroupType == AudioMixerGroupTypes.BGM)
         {
-            audioSource = Instantiate(audioSourceGameObject, m_bgmAudioSourceInstanceParent).GetComponent<AudioSource>();
-            m_lastBGMAudioSourceIndex = audioSource.transform.GetSiblingIndex();
+            audioSourceGameObject = new GameObject("AudioSource", typeof(AudioSource));
+            audioSourceGameObject.transform.parent = m_bgmAudioSourceInstanceParent;
+            m_lastBGMAudioSourceIndex = audioSourceGameObject.transform.GetSiblingIndex();
+            audioSource = audioSourceGameObject.GetComponent<AudioSource>();
         }
         else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
         {
-            audioSource = Instantiate(audioSourceGameObject, m_sfxAudioSourceInstanceParent).GetComponent<AudioSource>();
-            m_lastSFXAudioSourceIndex = audioSource.transform.GetSiblingIndex();
+            audioSourceGameObject = new GameObject("AudioSource", typeof(AudioSource));
+            audioSourceGameObject.transform.parent = m_sfxAudioSourceInstanceParent;
+            m_lastSFXAudioSourceIndex = audioSourceGameObject.transform.GetSiblingIndex();
+            audioSource = audioSourceGameObject.GetComponent<AudioSource>();
         }
 
         return audioSource;
@@ -396,12 +377,14 @@ public class AudioManager : Manager<AudioManager>
     private AudioSource getAvailableAudioSource(AudioMixerGroupTypes _audioMixerGroupType)
     {
         AudioSource audioSource = getAnyAudioSouceAvailable(_audioMixerGroupType);
+        if(audioSource != null)
+            Debug.Log("Get Available");
 
         if (audioSource == null)
         {
             if(_audioMixerGroupType == AudioMixerGroupTypes.BGM)
             {
-                if(m_bgmAudioSourceInstanceParent.childCount < AUDIO_BGM_SOURCE_SPAWN_MAX)
+                if(m_bgmAudioSourceInstanceParent.childCount < m_audioBGMPoolSize)
                 {
                     audioSource = instanceAudioSource(_audioMixerGroupType);
                 }
@@ -416,13 +399,15 @@ public class AudioManager : Manager<AudioManager>
             }
             else if (_audioMixerGroupType == AudioMixerGroupTypes.Game_SFX || _audioMixerGroupType == AudioMixerGroupTypes.UI_SFX)
             {
-                if (m_sfxAudioSourceInstanceParent.childCount < AUDIO_SFX_SOURCE_SPAWN_MAX)
+                if (m_sfxAudioSourceInstanceParent.childCount < m_AudioSFXPoolSize)
                 {
                     audioSource = instanceAudioSource(_audioMixerGroupType);
+                    Debug.Log("Instanced");
                 }
                 else
                 {
                     audioSource = getLastIndexAudioSource(_audioMixerGroupType);
+                    Debug.Log("Last Audio Index");
                 }
 
                 audioSource.outputAudioMixerGroup = getAudioMixerGroupFromType(_audioMixerGroupType);
