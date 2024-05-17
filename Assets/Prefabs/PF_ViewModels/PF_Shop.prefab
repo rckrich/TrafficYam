@@ -325,10 +325,10 @@ RectTransform:
   - {fileID: 4033919907552242520}
   m_Father: {fileID: 90728543726022755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 74.741}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 118.66, y: -193.6945}
+  m_SizeDelta: {x: 237.32, y: 74.741}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &459789676184497234
 GameObject:
@@ -706,10 +706,10 @@ RectTransform:
   - {fileID: 4632163524158479138}
   m_Father: {fileID: 90728543726022755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 71.583}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 118.66, y: -35.7915}
+  m_SizeDelta: {x: 237.32, y: 71.583}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2036814816537701758
 GameObject:
@@ -888,10 +888,10 @@ RectTransform:
   - {fileID: 1620504747377553935}
   m_Father: {fileID: 90728543726022755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 234.2}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 118.66, y: -424.21982}
+  m_SizeDelta: {x: 237.32, y: 234.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2835767023894835842
 GameObject:
@@ -942,7 +942,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac9f59ac02640c34280f4f284ba7fd5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _m_mainViewID: 0
+  m_mainViewID: 0
   m_networkLoadingCanvas: {fileID: 0}
   m_scrollViewContent: {fileID: 0}
 --- !u!1 &3350354015374860207
@@ -1715,7 +1715,7 @@ GameObject:
   - component: {fileID: 281904553763468555}
   - component: {fileID: 5750445861359739593}
   m_Layer: 0
-  m_Name: Shop_Button
+  m_Name: Money_Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1822,7 +1822,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 281904553763468555}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7597178633244288698}
+        m_TargetAssemblyTypeName: Shop_ViewModel, Assembly-CSharp
+        m_MethodName: OnClick_BuyMoney
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5907443500081393594
 GameObject:
   m_ObjectHideFlags: 0
@@ -1975,10 +1987,10 @@ RectTransform:
   - {fileID: 541861442141991390}
   m_Father: {fileID: 90728543726022755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 74.741}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 118.66, y: -113.9535}
+  m_SizeDelta: {x: 237.32, y: 74.741}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6255519738925895474
 GameObject:
@@ -2013,10 +2025,10 @@ RectTransform:
   - {fileID: 2910101941206122295}
   m_Father: {fileID: 90728543726022755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 66.0548}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 118.66, y: -269.0924}
+  m_SizeDelta: {x: 237.32, y: 66.0548}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6422070559396265576
 GameObject:
@@ -2847,7 +2859,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7834155015517739401}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7597178633244288698}
+        m_TargetAssemblyTypeName: Shop_ViewModel, Assembly-CSharp
+        m_MethodName: OnClick_Energy
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7988433782908776928
 GameObject:
   m_ObjectHideFlags: 0
@@ -2968,7 +2992,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4219821517675467406}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7597178633244288698}
+        m_TargetAssemblyTypeName: Shop_ViewModel, Assembly-CSharp
+        m_MethodName: OnClick_BackToPreviusScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8523399949698371000
 GameObject:
   m_ObjectHideFlags: 0
@@ -3311,7 +3347,7 @@ GameObject:
   - component: {fileID: 3026771590759739790}
   - component: {fileID: 8450907059523439267}
   m_Layer: 0
-  m_Name: Shop_Text
+  m_Name: Money_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3364,7 +3400,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Tienda
+  m_text: 'Dinero
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

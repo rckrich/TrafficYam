@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class Shop_ViewModel : ViewModel
 {
-    public void OnClick_BackToPreviusScreen() { }
+    public void OnClick_BackToPreviusScreen() 
+    { 
+       ViewModelManager.m_Instance.BackToPreviousView();
+    }
 
     public void OnClick_BuyEnergy()
     {
-        //NewScreenManager.instance.ChangeToSpawnedView("BuyEnergy");
+        ViewModelManager.m_Instance.ChangeToSpawnedView("BuyEnergy");
     }
 
-    public void OnClick_BuyCoins()
+    public void OnClick_BuyMoney()
     {
-        //NewScreenManager.instance.ChangeToSpawnedView("BuyMoney");
+        ViewModelManager.m_Instance.ChangeToSpawnedView("BuyMoney");
     }
 
     public void OnClick_VIP()

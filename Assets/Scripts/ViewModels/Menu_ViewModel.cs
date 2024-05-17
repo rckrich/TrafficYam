@@ -9,17 +9,17 @@ public class Menu_ViewModel : ViewModel
 
    public void OnClick_Shop()
    {
-        //NewScreenManager.instance.ChangeToSpawnedView("Shop");
-   }
+        ViewModelManager.m_Instance.ChangeToSpawnedView("Store");
+    }
 
     public void OnClick_Money()
     {
-        //NewScreenManager.instance.ChangeToSpawnedView("BuyMoney");
+        ViewModelManager.m_Instance.ChangeToSpawnedView("BuyMoney");
     }
 
     public void OnClick_Energy()
     {
-        //NewScreenManager.instance.ChangeToSpawnedView("BuyEnergy");
+        ViewModelManager.m_Instance.ChangeToSpawnedView("BuyEnergy");
     }
 
     public void OnClick_Forest()

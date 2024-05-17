@@ -4,15 +4,8 @@ using UnityEngine;
 
 public class SelectAge_ViewModel : ViewModel
 {
-    // Start is called before the first frame update
-    void Start()
+    public void OnClick_Continue()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        ViewModelManager.m_Instance.ChangeToMainView(MainViewID.Menu);
     }
 }
