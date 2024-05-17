@@ -29,5 +29,9 @@ public class TrafficObject : RCKGameObject
             m_animator.runtimeAnimatorController = m_typeReference.m_animatorController;
         }
     }
-
+    private void OnTriggerEnter(Collider other) {
+        if(other.tag =="TrafficObject"){
+            GameManager.m_Instance.TrafficObjectColision(gameObject, other.gameObject);
+        }
+    }
 }

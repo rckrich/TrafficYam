@@ -5,6 +5,7 @@ using DG.Tweening;
 public class ObjectTweenAnimator : RCKGameObject
 {
     private Transform m_centerPosition, m_initialPosition;
+    public BoxCollider m_boxCollider;
     private float m_speed = 5;
     private float m_speedModifier = 1;
     public float MovementTransitionDuration = 1;
@@ -27,7 +28,9 @@ public class ObjectTweenAnimator : RCKGameObject
     {
         m_MoveToCenter = new Tweener[1];
         m_MoveToCenter[0] = gameObject.transform.DOMove(m_centerPosition.position, m_speed*m_speedModifier, true).Pause();
-        
+        m_MoveToCenter[0].OnComplete(() => {
+            
+        });
     }
 
     private void SetUp_SwipeMove(Transform _destination)
@@ -38,6 +41,7 @@ public class ObjectTweenAnimator : RCKGameObject
         
         m_SwipeMove[0].OnComplete(() => {
             gameObject.SetActive(false);
+
         });
         
     }
@@ -46,7 +50,7 @@ public class ObjectTweenAnimator : RCKGameObject
     public void Play_MoveTocenter()
     {
         gameObject.transform.position = m_initialPosition.position;
-
+        m_boxCollider.enabled = true;
         if(m_MoveToCenter == null)
         {
             SetUp_MoveToCenter();
@@ -61,12 +65,13 @@ public class ObjectTweenAnimator : RCKGameObject
         }
 
         if (m_DEBUGTWEENS) 
-            Debug.Log(gameObject.name + "MoveToCenter");
+            Debug.Log(gameObject.name + "MoveToCenter" + Time.deltaTime);
     }
 
 
     public void Play_SwipeMove(Transform m_animalTrack)
     {
+        m_boxCollider.enabled = false;
         if(m_SwipeMove == null)
         {
             SetUp_SwipeMove(m_animalTrack);
@@ -80,7 +85,7 @@ public class ObjectTweenAnimator : RCKGameObject
         }
 
         if (m_DEBUGTWEENS) 
-            Debug.Log(gameObject.name + "SwipeMove");
+            Debug.Log(gameObject.name + "SwipeMove" + Time.deltaTime);
     }
 
     private void Reset_MoveTocenter(){
