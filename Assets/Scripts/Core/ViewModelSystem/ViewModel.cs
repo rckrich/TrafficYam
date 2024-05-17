@@ -9,7 +9,7 @@ public abstract class ViewModel : RCKGameObject
     private const int NETWORKLOADINGPANEL_ANIMATION_LAYER = 0;
 
     [Header("Main View ID")]
-    public MainViewID _m_mainViewID;
+    public MainViewID m_mainViewID;
     [Header("General View Model Game Object Reference")]
     public GameObject m_networkLoadingCanvas;
     public Transform m_scrollViewContent;
@@ -17,7 +17,7 @@ public abstract class ViewModel : RCKGameObject
     [SerializeField]
     public System.Action m_backAction;
 
-    public virtual MainViewID GetViewID() { return _m_mainViewID; }
+    public virtual MainViewID GetViewID() { return m_mainViewID; }
 
     public virtual void StartSearch()
     {

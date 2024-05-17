@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 3642317751910017997}
   - component: {fileID: 3217919781866065403}
   m_Layer: 0
-  m_Name: PF_WinWindow
+  m_Name: PF_WinLoseWindow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -183,11 +183,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83df1c3b97e1da447814aae1ed64b826, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _m_mainViewID: 0
+  m_networkLoadingCanvas: {fileID: 0}
+  m_scrollViewContent: {fileID: 0}
   m_Score: {fileID: 2488683169997552157}
   m_Bonus: {fileID: 4929826254505489377}
-  m_Continue: {fileID: 706598601370057324}
-  m_TryAgain: {fileID: 296469483837117555}
-  m_DuplicateButtom: {fileID: 2716774700472965271}
 --- !u!1 &3145823305197611747
 GameObject:
   m_ObjectHideFlags: 0

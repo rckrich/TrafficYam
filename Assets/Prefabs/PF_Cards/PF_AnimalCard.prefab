@@ -567,7 +567,7 @@ GameObject:
   - component: {fileID: 2119782946508750242}
   - component: {fileID: 92060722264184924}
   m_Layer: 0
-  m_Name: PF_AnimalCards
+  m_Name: PF_AnimalCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -609,5 +609,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_FoodImage: {fileID: 5538170809015448329}
-  m_Name: {fileID: 0}
+  m_AnimalName: {fileID: 0}
   m_AnimalImage: {fileID: 7466347351345058945}

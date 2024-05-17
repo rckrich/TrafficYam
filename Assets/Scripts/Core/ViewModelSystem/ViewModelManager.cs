@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public enum MainViewID
 {
     None,
+    Logo,
+    SelectAge,
+    Menu
 }
 
 public class ViewModelManager : Manager<ViewModelManager>

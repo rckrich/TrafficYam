@@ -8,7 +8,7 @@ public class AnimalCards : RCKGameObject
 {
     
     public Image m_FoodImage;
-    public TMP_Text m_Name;
+    public TMP_Text m_AnimalName;
     public Image m_AnimalImage;
     // Start is called before the first frame update
     void Start()
