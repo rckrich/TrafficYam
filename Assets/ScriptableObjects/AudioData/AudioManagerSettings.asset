@@ -10,8 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b155102c0ca64191a7e396a00739adf, type: 3}
-  m_Name: AudioObjectList
+  m_Name: AudioManagerSettings
   m_EditorClassIdentifier: 
+  m_audioMixer: {fileID: 24100000, guid: d5accfefdd3a247db9511b4cf901f9d6, type: 2}
+  m_audioMixerGroupObjects:
+  - m_groupType: 1
+    m_mixerGroup: {fileID: 24300002, guid: d5accfefdd3a247db9511b4cf901f9d6, type: 2}
+  - m_groupType: 2
+    m_mixerGroup: {fileID: -6222834323799784917, guid: d5accfefdd3a247db9511b4cf901f9d6, type: 2}
+  - m_groupType: 3
+    m_mixerGroup: {fileID: -869739284078276115, guid: d5accfefdd3a247db9511b4cf901f9d6, type: 2}
+  - m_groupType: 4
+    m_mixerGroup: {fileID: 2889938835340173334, guid: d5accfefdd3a247db9511b4cf901f9d6, type: 2}
+  m_audioSnapshotObjects:
+  - m_snapShotType: 1
+    m_snapshot: {fileID: 24500006, guid: d5accfefdd3a247db9511b4cf901f9d6, type: 2}
+  - m_snapShotType: 2
+    m_snapshot: {fileID: 2805644186929938468, guid: d5accfefdd3a247db9511b4cf901f9d6, type: 2}
+  - m_snapShotType: 3
+    m_snapshot: {fileID: -4799161860807322717, guid: d5accfefdd3a247db9511b4cf901f9d6, type: 2}
   m_BGMAudioObjectList:
     m_groupType: 2
     m_audioObjects:
