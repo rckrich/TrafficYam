@@ -19,5 +19,5 @@ MonoBehaviour:
     m_viewModelPrefab: {fileID: 2835767023894835842, guid: c63049b23c405db4b93aa779613bb8f4, type: 3}
   - m_viewModelType: BuyEnergyPopUp
     m_viewModelPrefab: {fileID: 8887091983062676604, guid: 0a712bdc50387cb4e8e8aa52ea545dde, type: 3}
-  - m_viewModelType: BuyMoneyPopUp
-    m_viewModelPrefab: {fileID: 1403824857955932844, guid: 945806a344baeed40850a4ac61f50794, type: 3}
+  - m_viewModelType: Loading
+    m_viewModelPrefab: {fileID: 3598623297232866942, guid: 1b768fd90f4208f46bd45ac0d7662171, type: 3}

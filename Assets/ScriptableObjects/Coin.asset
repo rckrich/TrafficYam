@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Coin
   m_EditorClassIdentifier: 
   m_name: Coin
-  m_type: 0
-  m_sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_type: 3
+  m_sprite: {fileID: 21300000, guid: 01871e6a2381f8c488430ea9dd2b9d85, type: 3}
   m_audioSFX: Coin
   m_amount: 1
   m_usesAnimController: 0

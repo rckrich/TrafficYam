@@ -4,8 +4,8 @@ using UnityEngine;
 public class PoolManager : Manager<PoolManager>
 {
     
-    private int m_prefabsToInitialize;
-    public GameObject m_prefab;
+    [SerializeField] private int m_prefabsToInitialize = 3;
+    [SerializeField] private GameObject m_prefab;
 
     private List<GameObject> m_pooledObjects = new List<GameObject>();
 

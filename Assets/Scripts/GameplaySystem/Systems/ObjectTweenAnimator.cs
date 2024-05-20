@@ -5,16 +5,31 @@ using DG.Tweening;
 public class ObjectTweenAnimator : RCKGameObject
 {
     private Transform m_centerPosition, m_initialPosition;
-    public BoxCollider m_boxCollider;
     private float m_speed = 5;
-    private float m_speedModifier = 1;
-    public float MovementTransitionDuration = 1;
+    public float m_speedModifier = 1;
+    [SerializeField] private float MovementTransitionDuration = 1;
     private Tweener[] m_MoveToCenter, m_SwipeMove;
     private bool m_DEBUGTWEENS = false;
+    [SerializeField] private TrafficObject m_trafficObject;
 
     // Start is called before the first frame update
-    void Start()
-    {
+
+    private void OnEnable() {
+        AddEventListener<GameEvent>(GameEventListener);
+    }
+    private void OnDisable() {
+        RemoveEventListener<GameEvent>(GameEventListener);
+    }
+
+
+    public void GameEventListener(GameEvent _gameEvent) {
+        int _value = (int)_gameEvent.GetParameters()[0];
+        if(_value == 1){
+            m_speedModifier = 1.5f;
+        }else{
+            m_speedModifier = 1;
+        }
+
     }
 
     public void SetValues(float _speed, Transform _centerPosition, Transform _initialPosition){
@@ -50,7 +65,7 @@ public class ObjectTweenAnimator : RCKGameObject
     public void Play_MoveTocenter()
     {
         gameObject.transform.position = m_initialPosition.position;
-        m_boxCollider.enabled = true;
+        m_trafficObject.g_amIMoving = false;
         if(m_MoveToCenter == null)
         {
             SetUp_MoveToCenter();
@@ -71,7 +86,7 @@ public class ObjectTweenAnimator : RCKGameObject
 
     public void Play_SwipeMove(Transform m_animalTrack)
     {
-        m_boxCollider.enabled = false;
+        m_trafficObject.g_amIMoving = true;
         if(m_SwipeMove == null)
         {
             SetUp_SwipeMove(m_animalTrack);

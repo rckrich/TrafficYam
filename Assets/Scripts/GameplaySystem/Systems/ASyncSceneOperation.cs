@@ -15,6 +15,9 @@ public class ASyncSceneOperation : MonoBehaviour
 
     public void StartLoadScene()
     {
+        //ViewModelManager.m_Instance.ChangeToSpawnedView("Loading");
+        //m_progressBar = ViewModelManager.m_Instance.GetCurrentView().GetComponent<LoadingScreen_ViewModel>().GetImageContainer();
+        
         m_asyncOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(m_sceneToLoad);
         m_asyncOperation.allowSceneActivation = false;
         StartCoroutine("ProgressBar");

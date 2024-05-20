@@ -6,17 +6,18 @@ using UnityEngine;
 
 public class TrafficRandomizer : MonoBehaviour
 {
-    public float m_foodPerAnimal;
+    public int g_foodPerAnimal;
 
     //private vvvvvvvv
     public List<int> m_trafficObjectRandomList = new List<int>();
+    public List<int> m_ComplementaryTrafficObjects = new List<int>();
     public List<SO_TrafficObject> m_typesOfTrafficObjects = new List<SO_TrafficObject>();
     
     public List<int> Randomize(float _waitSeconds, float _timer, float _animalTrack, float _proportionCarnivore){
 
-        float _totalTrafficObjects = _waitSeconds * _timer;
-        float _CarnivoreFood = m_foodPerAnimal * _proportionCarnivore;
-        float _HerviboreFood = (_animalTrack * m_foodPerAnimal) - _CarnivoreFood;
+        float _totalTrafficObjects = _timer/ _waitSeconds;
+        float _CarnivoreFood = g_foodPerAnimal * _proportionCarnivore;
+        float _HerviboreFood = (_animalTrack * g_foodPerAnimal) - _CarnivoreFood;
 
         if(_HerviboreFood > 0 ){
             for (int i = 0; i < _HerviboreFood; i++)
@@ -40,13 +41,21 @@ public class TrafficRandomizer : MonoBehaviour
             }
             
         } 
+        m_ComplementaryTrafficObjects = m_trafficObjectRandomList;
+        Shuffle(m_ComplementaryTrafficObjects);
         Shuffle(m_trafficObjectRandomList);
         return m_trafficObjectRandomList;
     }
 
     public SO_TrafficObject GetTypeFromList(){
-        int _value = m_trafficObjectRandomList[0]; 
-        m_trafficObjectRandomList.RemoveAt(0);
+        int _value;
+        if(m_trafficObjectRandomList.Count != 0){
+            _value = m_trafficObjectRandomList[0]; 
+            m_trafficObjectRandomList.RemoveAt(0);
+        }else{
+            _value = m_ComplementaryTrafficObjects[0]; 
+            m_ComplementaryTrafficObjects.RemoveAt(0);
+        }
         return m_typesOfTrafficObjects[_value];
     }
 

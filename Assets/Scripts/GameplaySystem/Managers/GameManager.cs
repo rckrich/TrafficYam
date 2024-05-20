@@ -4,26 +4,28 @@ using System;
 using TMPro;
 using UnityEngine;
 using DG.Tweening;
-[RequireComponent(typeof(TrafficRandomizer))]
+[RequireComponent(typeof(TrafficRandomizer))] [RequireComponent(typeof(CountdownTimer))]
 public class GameManager : Manager<GameManager>
 {
-    public GameState state;
-    public Transform m_centerPosition, m_initialPosition;
-    public GameObject GameOverScreen;
-    public float m_Timer;
-    public int m_Coins;
-    public int m_lives = 3;
+    [SerializeField] private CountdownTimer m_Countdowntimer;
+    [SerializeField] private GameState state;
+    [SerializeField] private Transform m_centerPosition, m_initialPosition;
+    [SerializeField] private GameObject GameOverScreen;
+    [SerializeField] private int m_Coins;
+    [SerializeField] private int m_lives = 3;
     private float m_TrafficObjectWaitSeconds;
     private float m_trafficObjectSpeed;
-    public GameObject m_trafficObjectInCenter;
-    public TextMeshProUGUI m_lifeText;
+    [SerializeField] private GameObject m_trafficObjectInCenter;
+    [SerializeField] private TextMeshProUGUI m_lifeText;
     private IEnumerator co_gamePlayLoop, co_gameCounter;
-    public List<Transform> m_animalTrack = new List<Transform>();
-    public TrafficRandomizer m_trafficRandomizer;
-    public List<GameObject> m_animalsToFeed = new List<GameObject>();
+    [SerializeField] private List<Transform> m_animalTrack = new List<Transform>();
+    [SerializeField] private TrafficRandomizer m_trafficRandomizer;
+    [SerializeField] private List<GameObject> m_animalsToFeed = new List<GameObject>();
     private int m_animalsInPlay;
-    private bool ColisionDoOnce;
+    public Animal[] m_animalList;
+    private int m_streak;
     
+    public static GameEvent OnStreak;
     private void Start(){
         
         m_TrafficObjectWaitSeconds = 2f;
@@ -42,7 +44,8 @@ public class GameManager : Manager<GameManager>
         co_gameCounter = null;
         m_lives = 3;
         m_lifeText.text = m_lives.ToString();
-        m_trafficRandomizer.Randomize(m_TrafficObjectWaitSeconds, m_Timer, m_animalsInPlay, CalculateAnimalCarnivores());
+        m_Countdowntimer.InitializeTimer();
+        m_trafficRandomizer.Randomize(m_TrafficObjectWaitSeconds, m_Countdowntimer.g_startingTime, m_animalsInPlay, CalculateAnimalCarnivores());
         if(co_gamePlayLoop == null){
             co_gamePlayLoop = GamePlayLoop();
             StartCoroutine(co_gamePlayLoop);
@@ -50,26 +53,34 @@ public class GameManager : Manager<GameManager>
     }
 
     private void ConfigureAnimalsInPlay(){
-        m_animalsInPlay = GameDataManager.m_Instance.g_animalsInPlay;
-        for (int i = 0; i < m_animalsToFeed.Count; i++)
+        
+        m_animalList = GameDataManager.m_Instance.ReturnAnimalList();
+
+        for (int i = 0; i < m_animalList.Length; i++)
         {
-            if( i > m_animalsInPlay-1){
+            if(m_animalList[i].m_foodType == FoodType.None){
                 m_animalsToFeed[i].SetActive(false);
+            }else{
+                m_animalsInPlay++;
+                Animal _animal = m_animalsToFeed[i].GetComponentInChildren<Animal>();
+                _animal.m_foodType = m_animalList[i].m_foodType;
+                _animal.m_HungerCapacity = m_trafficRandomizer.g_foodPerAnimal;
             }
         }
+        
     }
     
     private float CalculateAnimalCarnivores(){
         float _carnivores = 0;
-        foreach (GameObject _animal in m_animalsToFeed)
+        foreach (Animal _animal in m_animalList)
         {
-            if(_animal.GetComponentInChildren<Animal>().m_foodType == FoodType.Carnivorous){
+            if(_animal.m_foodType == FoodType.Carnivorous){
                 _carnivores++;
-                break;
+                
             }
-            if(_animal.GetComponentInChildren<Animal>().m_foodType == FoodType.Omnivore){
+            if(_animal.m_foodType == FoodType.Omnivore){
                 _carnivores = _carnivores + .5f;
-                break;
+                
             }
         }
 
@@ -91,12 +102,12 @@ public class GameManager : Manager<GameManager>
     }
     IEnumerator GamePlayLoop(){
         while (true){
-            InitializTrafficObject();
+            InitializeTrafficObject();
             yield return new WaitForSeconds(m_TrafficObjectWaitSeconds);
         }
     }
 
-    private void InitializTrafficObject(){
+    private void InitializeTrafficObject(){
         GameObject _instance = PoolManager.m_Instance.GetPooledObject();
         _instance.GetComponent<TrafficObject>().ChangeType(m_trafficRandomizer.GetTypeFromList());
         _instance.SetActive(true);
@@ -133,7 +144,7 @@ public class GameManager : Manager<GameManager>
             }else{
                 _trafficObject.SetActive(false);
             }
-            LoseLife();
+            OnTriggerFail();
         }
         
         
@@ -150,26 +161,28 @@ public class GameManager : Manager<GameManager>
 
     private void SwipeLogic(string _swipeDirection, GameObject m_trafficObject)
     {
+        PointLogic();
         if(_swipeDirection == "Up"){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[0]);
             return;
         }
-        if(_swipeDirection == "Right" && m_animalsInPlay > 0){
+        if(_swipeDirection == "Right" && m_animalList[0].m_foodType != FoodType.None){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[1]);
             return;
         }
-        if(_swipeDirection == "Left" && m_animalsInPlay > 1){
+        if(_swipeDirection == "Left" && m_animalList[1].m_foodType != FoodType.None){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[2]);
             return;
         }
-        if(_swipeDirection == "UpRight" && m_animalsInPlay > 2){
+        if(_swipeDirection == "UpRight" && m_animalList[2].m_foodType != FoodType.None){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[3]);
             return;
         }
-        if(_swipeDirection == "UpLeft" && m_animalsInPlay > 3){
+        if(_swipeDirection == "UpLeft" && m_animalList[3].m_foodType != FoodType.None){
            m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[4]);
            return;
         }
+        /*
         if(_swipeDirection == "DownRight" && m_animalsInPlay > 4){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[5]);
             return;
@@ -178,27 +191,50 @@ public class GameManager : Manager<GameManager>
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[6]);
             return;
         }
+        */
     }
 
-    public void LoseLife()
+    private void PointLogic(){
+        m_streak++;
+        if(m_streak > 5){
+            //InvokeEvent<GameEvent>(new GameEvent(1));
+            Debug.Log("OnStreak");
+        }
+    }
+
+    public void OnClickCoin(){
+        Debug.Log("Coin");
+    }
+
+    public void OnTriggerSuccess(){
+        Debug.Log("success");
+    }
+
+    public void OnTriggerFail()
     {
-        Debug.Log("lose");
+        Debug.Log("fail");
+        //InvokeEvent<GameEvent>(new GameEvent(0));
         if(m_lives == 0)
         {
+            m_Countdowntimer.StopTimer();
             UpdateGameState(GameState.Lose);
+            Debug.Log("Lose");
         }
         else
         {
+            m_streak = 0;
             m_lives -= 1;
             
             m_lifeText.text = m_lives.ToString();
         }
     }
 
+
     public void TimerEnds()
     {
         UpdateGameState(GameState.Victory);
-        
+
+        Debug.Log("Win");
     }
     public enum GameState
     {
