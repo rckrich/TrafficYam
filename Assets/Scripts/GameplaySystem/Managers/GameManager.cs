@@ -4,6 +4,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using DG.Tweening;
+using Unity.VisualScripting;
 [RequireComponent(typeof(TrafficRandomizer))] [RequireComponent(typeof(CountdownTimer))]
 public class GameManager : Manager<GameManager>
 {
@@ -13,10 +14,9 @@ public class GameManager : Manager<GameManager>
     [SerializeField] private GameObject GameOverScreen;
     [SerializeField] private int m_Coins;
     [SerializeField] private int m_lives = 3;
-    private float m_TrafficObjectWaitSeconds;
-    private float m_trafficObjectSpeed;
+    private float m_TrafficObjectWaitSeconds, m_trafficObjectSpeed, m_trafficObjectSpeedStreak, m_TrafficObjectWaitSecondsStreak;
     [SerializeField] private GameObject m_trafficObjectInCenter;
-    [SerializeField] private TextMeshProUGUI m_lifeText;
+    [SerializeField] private TextMeshProUGUI m_lifeText, m_streakText;
     private IEnumerator co_gamePlayLoop, co_gameCounter;
     [SerializeField] private List<Transform> m_animalTrack = new List<Transform>();
     [SerializeField] private TrafficRandomizer m_trafficRandomizer;
@@ -27,9 +27,10 @@ public class GameManager : Manager<GameManager>
     
     public static GameEvent OnStreak;
     private void Start(){
-        
         m_TrafficObjectWaitSeconds = 2f;
         m_trafficObjectSpeed = 2;
+        m_trafficObjectSpeedStreak = m_trafficObjectSpeed/2;
+        m_TrafficObjectWaitSecondsStreak = m_TrafficObjectWaitSeconds/2;
     }
 
     public void InitializeGame(){
@@ -146,8 +147,6 @@ public class GameManager : Manager<GameManager>
             }
             OnTriggerFail();
         }
-        
-        
     }
 
     public void OnSwipe(string _swipe)
@@ -161,7 +160,6 @@ public class GameManager : Manager<GameManager>
 
     private void SwipeLogic(string _swipeDirection, GameObject m_trafficObject)
     {
-        PointLogic();
         if(_swipeDirection == "Up"){
             m_trafficObject.GetComponent<ObjectTweenAnimator>().Play_SwipeMove(m_animalTrack[0]);
             return;
@@ -194,39 +192,54 @@ public class GameManager : Manager<GameManager>
         */
     }
 
-    private void PointLogic(){
-        m_streak++;
-        if(m_streak > 5){
-            //InvokeEvent<GameEvent>(new GameEvent(1));
-            Debug.Log("OnStreak");
-        }
-    }
-
     public void OnClickCoin(){
+        m_Coins++;
         Debug.Log("Coin");
+        OnTriggerSuccess();
     }
 
     public void OnTriggerSuccess(){
+        m_streak++;
+        m_streakText.text = m_streak.ToString();
+        if(m_streak == 5){
+            m_TrafficObjectWaitSeconds = m_TrafficObjectWaitSecondsStreak;
+            InvokeEvent<OnStreak>(new OnStreak(m_trafficObjectSpeedStreak));
+            Debug.Log("OnStreak");
+        }
         Debug.Log("success");
     }
 
     public void OnTriggerFail()
     {
         Debug.Log("fail");
-        //InvokeEvent<GameEvent>(new GameEvent(0));
         if(m_lives == 0)
         {
-            m_Countdowntimer.StopTimer();
-            UpdateGameState(GameState.Lose);
-            Debug.Log("Lose");
+            OnEndGame();
         }
         else
         {
+            if(m_streak > 4){
+                m_TrafficObjectWaitSeconds = m_TrafficObjectWaitSecondsStreak*2;
+                InvokeEvent<OnStreak>(new OnStreak(m_trafficObjectSpeed));
+            }
             m_streak = 0;
-            m_lives -= 1;
+            m_streakText.text = "0";
             
+            m_lives -= 1;
             m_lifeText.text = m_lives.ToString();
         }
+    }
+
+    private void OnEndGame(){
+        m_Countdowntimer.StopTimer();
+        UpdateGameState(GameState.Lose);
+        GameOverScreen.SetActive(true);
+        PoolManager.m_Instance.RecoverPooledObjects();
+        if(co_gamePlayLoop != null){
+            StopCoroutine(co_gamePlayLoop);
+            co_gamePlayLoop = null;
+        }
+        Debug.Log("Lose");
     }
 
 

@@ -56,7 +56,7 @@ public class EventManager
     {
         if (_event == null)
         {
-            throw new ArgumentNullException("Event of name " + _event.name + " is null");
+            //throw new ArgumentNullException("Event of name " + _event.name + " is null");
         }
 
         Delegate outDelegate;

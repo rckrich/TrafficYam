@@ -5,8 +5,7 @@ using DG.Tweening;
 public class ObjectTweenAnimator : RCKGameObject
 {
     private Transform m_centerPosition, m_initialPosition;
-    private float m_speed = 5;
-    public float m_speedModifier = 1;
+    public float m_speed;
     [SerializeField] private float MovementTransitionDuration = 1;
     private Tweener[] m_MoveToCenter, m_SwipeMove;
     private bool m_DEBUGTWEENS = false;
@@ -14,22 +13,20 @@ public class ObjectTweenAnimator : RCKGameObject
 
     // Start is called before the first frame update
 
-    private void OnEnable() {
-        AddEventListener<GameEvent>(GameEventListener);
-    }
-    private void OnDisable() {
-        RemoveEventListener<GameEvent>(GameEventListener);
+    private void Start() {
+        AddEventListener<OnStreak>(Onstreak);
     }
 
+    private void OnDestroy() {
+        RemoveEventListener<OnStreak>(Onstreak);
+    }
 
-    public void GameEventListener(GameEvent _gameEvent) {
-        int _value = (int)_gameEvent.GetParameters()[0];
-        if(_value == 1){
-            m_speedModifier = 1.5f;
-        }else{
-            m_speedModifier = 1;
+    public void Onstreak(OnStreak _event){
+        Debug.Log(m_speed + " " + _event.m_speed);
+        m_speed = _event.m_speed;
+        if(DOTween.IsTweening(m_trafficObject) && !m_trafficObject.g_amIMoving){
+            UpdateSpeed_MoveToCenter();
         }
-
     }
 
     public void SetValues(float _speed, Transform _centerPosition, Transform _initialPosition){
@@ -42,7 +39,7 @@ public class ObjectTweenAnimator : RCKGameObject
     private void SetUp_MoveToCenter()
     {
         m_MoveToCenter = new Tweener[1];
-        m_MoveToCenter[0] = gameObject.transform.DOMove(m_centerPosition.position, m_speed*m_speedModifier, true).Pause();
+        m_MoveToCenter[0] = gameObject.transform.DOMove(m_centerPosition.position, m_speed, true).Pause();
         m_MoveToCenter[0].OnComplete(() => {
             
         });
@@ -101,6 +98,13 @@ public class ObjectTweenAnimator : RCKGameObject
 
         if (m_DEBUGTWEENS) 
             Debug.Log(gameObject.name + "SwipeMove" + Time.deltaTime);
+    }
+
+    private void UpdateSpeed_MoveToCenter(){
+        foreach (Tweener item in m_MoveToCenter)
+            {
+                item.ChangeEndValue(m_centerPosition.position, m_speed);
+            }
     }
 
     private void Reset_MoveTocenter(){

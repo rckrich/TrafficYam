@@ -49,8 +49,8 @@ public class TrafficObject : RCKGameObject
 
     private void OnMouseDown() {
         if(m_type == TrafficObjectType.Coin){
+            GameManager.m_Instance.OnClickCoin();
             DG.Tweening.DOTween.Pause(gameObject);
-            Debug.Log("Coin");
             gameObject.SetActive(false);
         }
     }

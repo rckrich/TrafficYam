@@ -23,12 +23,14 @@ public class TrafficRandomizer : MonoBehaviour
             for (int i = 0; i < _HerviboreFood; i++)
             {
                 m_trafficObjectRandomList.Add(0);
+                m_ComplementaryTrafficObjects.Add(0);
             }
         }
         if(_CarnivoreFood > 0 ){
             for (int i = 0; i < _CarnivoreFood; i++)
             {
                 m_trafficObjectRandomList.Add(1);
+                m_ComplementaryTrafficObjects.Add(1);
             }
         }
         _totalTrafficObjects = _totalTrafficObjects - _CarnivoreFood - _HerviboreFood;
@@ -36,12 +38,13 @@ public class TrafficRandomizer : MonoBehaviour
         {
             if( i % 2 == 0 ){
                 m_trafficObjectRandomList.Add(2);
+                m_ComplementaryTrafficObjects.Add(2);
             }else{
                 m_trafficObjectRandomList.Add(3);
+                m_ComplementaryTrafficObjects.Add(3);
             }
             
         } 
-        m_ComplementaryTrafficObjects = m_trafficObjectRandomList;
         Shuffle(m_ComplementaryTrafficObjects);
         Shuffle(m_trafficObjectRandomList);
         return m_trafficObjectRandomList;

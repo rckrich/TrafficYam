@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class PoolManager : Manager<PoolManager>
@@ -14,6 +15,14 @@ public class PoolManager : Manager<PoolManager>
         for(int i = 0; i < m_prefabsToInitialize; i++)
         {
             CreateObjectInPool();
+        }
+    }
+
+    public void RecoverPooledObjects(){
+        foreach (GameObject item in m_pooledObjects)
+        {
+            DOTween.Pause(item.transform);
+            item.SetActive(false);
         }
     }
 

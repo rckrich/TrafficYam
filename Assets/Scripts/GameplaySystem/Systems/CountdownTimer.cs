@@ -42,8 +42,11 @@ public class CountdownTimer : MonoBehaviour
     }
 
     public void StopTimer(){
-        StopCoroutine(co_timer);
-        co_timer = null;
+        if(co_timer != null){
+            StopCoroutine(co_timer);
+            co_timer = null;
+        }
+
     }
 
 }
