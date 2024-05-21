@@ -8,6 +8,7 @@ public class GameDataManager : Manager<GameDataManager>
 {
     public Animal[] m_animalList;
     [SerializeField] private List<TextMeshProUGUI> m_text = new List<TextMeshProUGUI>();
+    public List<TeamAnimal> g_animalTeam = new List<TeamAnimal>();
 
     private void Start() {
     }

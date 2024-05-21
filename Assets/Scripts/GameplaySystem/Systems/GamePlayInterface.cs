@@ -10,6 +10,7 @@ public enum InterfaceType
 public class GamePlayInterface: RCKGameObject 
 {
     [SerializeField] private InterfaceType m_InterfaceType;
+    private int HungerCountdown;
     private void OnTriggerEnter(Collider other) {
         if(m_InterfaceType == InterfaceType.LimitObject){
             GameManager.m_Instance.UpdateTrafficObjectInCenter(other.gameObject);
@@ -38,5 +39,12 @@ public class GamePlayInterface: RCKGameObject
         }
         GameManager.m_Instance.OnTriggerFail();
         
+    }
+
+    public int RecoverHunger(){
+        if(m_InterfaceType == InterfaceType.AnimalObject){
+            return HungerCountdown;
+        }
+        return -1;
     }
 }

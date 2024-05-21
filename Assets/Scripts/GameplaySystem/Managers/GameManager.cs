@@ -214,7 +214,9 @@ public class GameManager : Manager<GameManager>
         Debug.Log("fail");
         if(m_lives == 0)
         {
+            UpdateGameState(GameState.Lose);
             OnEndGame();
+            Debug.Log("Lose");
         }
         else
         {
@@ -230,23 +232,23 @@ public class GameManager : Manager<GameManager>
         }
     }
 
+
+
     private void OnEndGame(){
         m_Countdowntimer.StopTimer();
-        UpdateGameState(GameState.Lose);
         GameOverScreen.SetActive(true);
         PoolManager.m_Instance.RecoverPooledObjects();
         if(co_gamePlayLoop != null){
             StopCoroutine(co_gamePlayLoop);
             co_gamePlayLoop = null;
         }
-        Debug.Log("Lose");
     }
 
 
     public void TimerEnds()
     {
         UpdateGameState(GameState.Victory);
-
+        OnEndGame();
         Debug.Log("Win");
     }
     public enum GameState
